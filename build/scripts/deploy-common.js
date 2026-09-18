@@ -208,7 +208,9 @@ async function deployAppsCommon() {
   for (const f of fs.readdirSync(src)) {
     if (!f.endsWith(".html.deploy")) continue;
     const content = fs.readFileSync(path.join(src, f), "utf8");
-    const replaced = content.replace(/@@SRC_ROOT@@/g, REPO_ROOT);
+    const replaced = content
+      .replace(/@@SRC_ROOT@@/g, REPO_ROOT)
+      .replace(/\{\{APP_TITLE_TEXT\}\}/g, APP_TITLE_TEXT);
     fs.writeFileSync(
       path.join(out, f.replace(".html.deploy", ".html")),
       replaced,
