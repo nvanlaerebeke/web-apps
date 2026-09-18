@@ -47,7 +47,7 @@ if (fs.existsSync(THEME_CONFIG)) {
     }
 }
 
-const APP_TITLE_TEXT = process.env.APP_TITLE_TEXT || themeMeta.app_title || 'EUROOFFICE';
+const APP_TITLE_TEXT = process.env.APP_TITLE_TEXT || themeMeta.app_title || 'Euro Office';
 
 if (!BUILD_ROOT) {
     console.error('deploy-html: BUILD_ROOT must be set');
