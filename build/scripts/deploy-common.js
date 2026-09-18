@@ -126,7 +126,6 @@ function deployAPI() {
     // webpack HTML replacement step.
     replaceTokensIn(apiOut, [
         [/\{\{APP_TITLE_TEXT\}\}/g, APP_TITLE_TEXT],
-        [/<title>ONLYOFFICE<\/title>/g, `<title>${APP_TITLE_TEXT}</title>`],
     ], { exts: ['.ejs'] });
 
     // replicate grunt's replace:cachescripts — substitute @@SRC_ROOT@@ in api HTML files
