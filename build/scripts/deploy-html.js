@@ -28,26 +28,15 @@
 
 const fs   = require('fs');
 const path = require('path');
+const { loadThemeMeta, themeValue } = require('./lib/theme-config');
+const { meta: themeMeta } = loadThemeMeta(
+    path.resolve(__dirname, '..', '..'),
+    'deploy-html'
+);
 
 const REPO_ROOT  = path.resolve(__dirname, '..', '..');
 const BUILD_ROOT = process.env.BUILD_ROOT;
-
-// Resolve the editor title from the active theme at build time. This mirrors
-// the precedence used by build/theme.config.mjs: an explicit environment
-// override wins over the theme metadata, which wins over the stock fallback.
-const THEME = process.env.THEME || 'euro-office';
-const THEME_CONFIG = path.join(REPO_ROOT, 'theme', THEME, 'meta', 'config.json');
-let themeMeta = {};
-
-if (fs.existsSync(THEME_CONFIG)) {
-    try {
-        themeMeta = JSON.parse(fs.readFileSync(THEME_CONFIG, 'utf8'));
-    } catch (error) {
-        console.warn(`deploy-html: unable to read theme config ${THEME_CONFIG}: ${error.message}`);
-    }
-}
-
-const APP_TITLE_TEXT = process.env.APP_TITLE_TEXT || themeMeta.app_title || 'Euro Office';
+const APP_TITLE_TEXT = themeValue(themeMeta, 'APP_TITLE_TEXT', 'app_title', 'Euro Office');
 
 if (!BUILD_ROOT) {
     console.error('deploy-html: BUILD_ROOT must be set');

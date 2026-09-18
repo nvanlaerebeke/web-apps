@@ -32,6 +32,7 @@ const {
     cleanDir, ensureDir, copyFile, copyDir, copyDirFiltered,
     replaceTokensIn, replaceTokensInJS, writeSVG, writeRaster, optimizeImages,
 } = require('./lib/build-utils');
+const { loadThemeMeta, themeValue } = require('./lib/theme-config');
 
 const REPO_ROOT  = path.resolve(__dirname, '..', '..');
 const BUILD_ROOT = process.env.BUILD_ROOT;
@@ -45,20 +46,9 @@ if (!BUILD_ROOT) {
 const COMMON_JSON    = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, 'build', 'common.json'), 'utf8'));
 // Mirror Gruntfile line 358: process.env['PRODUCT_VERSION'] takes precedence over common.json.
 const PKG_VERSION    = process.env.PRODUCT_VERSION || COMMON_JSON.version;
-const THEME          = process.env.THEME || 'euro-office';
-const THEME_CONFIG   = path.join(REPO_ROOT, 'theme', THEME, 'meta', 'config.json');
-let themeMeta        = {};
-
-if (fs.existsSync(THEME_CONFIG)) {
-    try {
-        themeMeta = JSON.parse(fs.readFileSync(THEME_CONFIG, 'utf8'));
-    } catch (error) {
-        console.warn(`deploy-common: unable to read theme config ${THEME_CONFIG}: ${error.message}`);
-    }
-}
-
-const CUSTOMER_NAME  = process.env.APP_CUSTOMER_NAME || themeMeta.company_name || 'Euro Office';
-const APP_TITLE_TEXT = process.env.APP_TITLE_TEXT || themeMeta.app_title || 'Euro Office';
+const { meta: themeMeta } = loadThemeMeta(REPO_ROOT, 'deploy-common');
+const CUSTOMER_NAME  = themeValue(themeMeta, 'APP_CUSTOMER_NAME', 'company_name', 'Euro Office');
+const APP_TITLE_TEXT = themeValue(themeMeta, 'APP_TITLE_TEXT', 'app_title', 'Euro Office');
 const APPS_SRC       = path.join(REPO_ROOT, 'apps');
 const VENDOR_SRC     = path.join(REPO_ROOT, 'vendor');
 const BUILD_OUT      = path.join(BUILD_ROOT, 'web-apps');

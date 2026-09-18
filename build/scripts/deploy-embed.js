@@ -31,6 +31,11 @@ const fs   = require('fs');
 const path = require('path');
 const less = require('less');
 const { minify } = require('terser');
+const { loadThemeMeta, themeValue } = require('./lib/theme-config');
+const { meta: themeMeta } = loadThemeMeta(
+    path.resolve(__dirname, '..', '..'),
+    'deploy-embed'
+);
 
 const REPO_ROOT  = path.resolve(__dirname, '..', '..');
 const BUILD_ROOT = process.env.BUILD_ROOT
@@ -39,23 +44,7 @@ const BUILD_ROOT = process.env.BUILD_ROOT
 const SRC_ROOT   = REPO_ROOT;
 const CFG_DIR    = path.resolve(__dirname, '..');
 
-// Resolve branding values using the same precedence as the webpack theme
-// configuration: environment override, active theme metadata, fallback.
-const THEME = process.env.THEME || 'euro-office';
-const THEME_CONFIG = path.join(REPO_ROOT, 'theme', THEME, 'meta', 'config.json');
-let themeMeta = {};
-
-if (fs.existsSync(THEME_CONFIG)) {
-    try {
-        themeMeta = JSON.parse(fs.readFileSync(THEME_CONFIG, 'utf8'));
-    } catch (error) {
-        console.warn(`deploy-embed: unable to read theme config ${THEME_CONFIG}: ${error.message}`);
-    }
-}
-
-const PUBLISHER_URL = process.env.PUBLISHER_URL
-    || themeMeta.publisher_url
-    || 'https://github.com/euro-office';
+const PUBLISHER_URL = themeValue(themeMeta, 'PUBLISHER_URL', 'publisher_url', 'https://github.com/euro-office');
 
 const EDITORS = [
     'documenteditor',
