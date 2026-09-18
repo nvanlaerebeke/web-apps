@@ -39,6 +39,24 @@ const BUILD_ROOT = process.env.BUILD_ROOT
 const SRC_ROOT   = REPO_ROOT;
 const CFG_DIR    = path.resolve(__dirname, '..');
 
+// Resolve branding values using the same precedence as the webpack theme
+// configuration: environment override, active theme metadata, fallback.
+const THEME = process.env.THEME || 'euro-office';
+const THEME_CONFIG = path.join(REPO_ROOT, 'theme', THEME, 'meta', 'config.json');
+let themeMeta = {};
+
+if (fs.existsSync(THEME_CONFIG)) {
+    try {
+        themeMeta = JSON.parse(fs.readFileSync(THEME_CONFIG, 'utf8'));
+    } catch (error) {
+        console.warn(`deploy-embed: unable to read theme config ${THEME_CONFIG}: ${error.message}`);
+    }
+}
+
+const PUBLISHER_URL = process.env.PUBLISHER_URL
+    || themeMeta.publisher_url
+    || 'https://github.com/euro-office';
+
 const EDITORS = [
     'documenteditor',
     'spreadsheeteditor',
@@ -137,7 +155,10 @@ async function buildEditor(editorName) {
         if (!f.endsWith('.html')) continue;
         const p       = path.join(htmlDestDir, f);
         const content = fs.readFileSync(p, 'utf8');
-        fs.writeFileSync(p, content.replace(/@@SRC_ROOT@@/g, SRC_ROOT), 'utf8');
+        const replaced = content
+            .replace(/@@SRC_ROOT@@/g, SRC_ROOT)
+            .replace(/\{\{PUBLISHER_URL\}\}/g, PUBLISHER_URL);
+        fs.writeFileSync(p, replaced, 'utf8');
     }
 
     // 6. inline ?__inline=true scripts (mirrors inline-svgs.js SCRIPT_RE logic)

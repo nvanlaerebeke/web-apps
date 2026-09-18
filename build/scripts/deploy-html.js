@@ -32,6 +32,23 @@ const path = require('path');
 const REPO_ROOT  = path.resolve(__dirname, '..', '..');
 const BUILD_ROOT = process.env.BUILD_ROOT;
 
+// Resolve the editor title from the active theme at build time. This mirrors
+// the precedence used by build/theme.config.mjs: an explicit environment
+// override wins over the theme metadata, which wins over the stock fallback.
+const THEME = process.env.THEME || 'euro-office';
+const THEME_CONFIG = path.join(REPO_ROOT, 'theme', THEME, 'meta', 'config.json');
+let themeMeta = {};
+
+if (fs.existsSync(THEME_CONFIG)) {
+    try {
+        themeMeta = JSON.parse(fs.readFileSync(THEME_CONFIG, 'utf8'));
+    } catch (error) {
+        console.warn(`deploy-html: unable to read theme config ${THEME_CONFIG}: ${error.message}`);
+    }
+}
+
+const APP_TITLE_TEXT = process.env.APP_TITLE_TEXT || themeMeta.app_title || 'EUROOFFICE';
+
 if (!BUILD_ROOT) {
     console.error('deploy-html: BUILD_ROOT must be set');
     process.exit(1);
@@ -73,7 +90,9 @@ for (const { editor, subpath } of DIRS) {
 
     for (const filename of deploys) {
         const content  = fs.readFileSync(path.join(srcDir, filename), 'utf8');
-        const replaced = content.replace(/@@SRC_ROOT@@/g, SRC_ROOT);
+        const replaced = content
+            .replace(/@@SRC_ROOT@@/g, SRC_ROOT)
+            .replace(/\{\{APP_TITLE_TEXT\}\}/g, APP_TITLE_TEXT);
         const destName = filename.replace('.html.deploy', '.html');
         fs.writeFileSync(path.join(destDir, destName), replaced, 'utf8');
     }
