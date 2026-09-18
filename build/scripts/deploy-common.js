@@ -45,7 +45,6 @@ if (!BUILD_ROOT) {
 const COMMON_JSON    = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, 'build', 'common.json'), 'utf8'));
 // Mirror Gruntfile line 358: process.env['PRODUCT_VERSION'] takes precedence over common.json.
 const PKG_VERSION    = process.env.PRODUCT_VERSION || COMMON_JSON.version;
-const CUSTOMER_NAME  = process.env.APP_CUSTOMER_NAME || 'Euro Office';
 const THEME          = process.env.THEME || 'euro-office';
 const THEME_CONFIG   = path.join(REPO_ROOT, 'theme', THEME, 'meta', 'config.json');
 let themeMeta        = {};
@@ -58,6 +57,7 @@ if (fs.existsSync(THEME_CONFIG)) {
     }
 }
 
+const CUSTOMER_NAME  = process.env.APP_CUSTOMER_NAME || themeMeta.company_name || 'Euro Office';
 const APP_TITLE_TEXT = process.env.APP_TITLE_TEXT || themeMeta.app_title || 'Euro Office';
 const APPS_SRC       = path.join(REPO_ROOT, 'apps');
 const VENDOR_SRC     = path.join(REPO_ROOT, 'vendor');
