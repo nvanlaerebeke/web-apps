@@ -121,6 +121,7 @@ function deployAPI() {
     // replicate grunt's replace:cachescripts — substitute @@SRC_ROOT@@ in api HTML files
     replaceTokensIn(apiOut, [
         [/@@SRC_ROOT@@/g, REPO_ROOT],
+        [/\{\{APP_TITLE_TEXT\}\}/g, APP_TITLE_TEXT],
     ], { exts: ['.html'] });
 
     console.log('deploy-common: api done');
